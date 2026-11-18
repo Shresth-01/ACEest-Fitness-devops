@@ -1,0 +1,39 @@
+name: ACEest Fitness CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Stage 1: Build & Lint
+      - name: Build & Lint (Compile and Flake8 Check)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m py_compile app.py test_app.py
+          flake8 app.py test_app.py --count --max-complexity=10 --max-line-length=100 --statistics
+
+      # Stage 2: Docker Image Assembly
+      - name: Docker Image Assembly
+        run: |
+          docker build -t aceest-fitness-app:${{ github.sha }} .
+          docker images aceest-fitness-app:${{ github.sha }}
+
+      # Stage 3: Automated Testing inside Container
+      - name: Automated Testing (Pytest inside Docker Container)
+        run: |
+          docker run --rm aceest-fitness-app:${{ github.sha }} pytest -v
