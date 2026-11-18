@@ -121,3 +121,4 @@ def test_workouts_and_progress_endpoints(client):
         json={"client_name": "Arjun", "adherence": 150},
     )
     assert bad_p_res.status_code == 400
+    
