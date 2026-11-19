@@ -2,9 +2,7 @@ name: ACEest Fitness CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build-lint-and-test:
