@@ -16,17 +16,16 @@ pipeline {
         stage('Build & Lint') {
             steps {
                 sh '''
-                    python3 -m pip install --upgrade pip
-                    pip install -r requirements.txt
+                    python3 -m pip install -r requirements.txt
                     python3 -m py_compile app.py test_app.py
-                    flake8 app.py test_app.py --count --max-line-length=100 --statistics
+                    python3 -m flake8 app.py test_app.py --count --max-line-length=100 --statistics
                 '''
             }
         }
 
         stage('Unit Testing (Pytest)') {
             steps {
-                sh 'pytest -v'
+                sh 'python3 -m pytest -v'
             }
         }
 
@@ -42,7 +41,7 @@ pipeline {
         stage('Containerized Test & Smoke Check') {
             steps {
                 sh '''
-                    docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest -v
+                    docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} python -m pytest -v
                 '''
             }
         }
