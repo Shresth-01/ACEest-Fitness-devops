@@ -5,6 +5,8 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.environ.get("DB_NAME", "aceest_fitness.db")
+APP_VERSION = os.environ.get("APP_VERSION", "2.0.0")
+DEPLOY_VARIANT = os.environ.get("DEPLOY_VARIANT", "stable")
 
 PROGRAMS = {
     "Fat Loss (FL)": {
@@ -104,13 +106,24 @@ def home():
             "status": "running",
             "capacity": 150,
             "programs": list(PROGRAMS.keys()),
+            "version": APP_VERSION,
+            "variant": DEPLOY_VARIANT,
         }
     ), 200
 
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "healthy"}), 200
+    return jsonify({
+        "status": "healthy",
+        "version": APP_VERSION,
+        "variant": DEPLOY_VARIANT,
+    }), 200
+
+
+@app.route("/version", methods=["GET"])
+def version():
+    return jsonify({"version": APP_VERSION, "variant": DEPLOY_VARIANT}), 200
 
 
 @app.route("/programs", methods=["GET"])

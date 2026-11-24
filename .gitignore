@@ -1,5 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+coverage.xml
+.coverage
+test-results.xml
 *.py[codz]
 *$py.class
 

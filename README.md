@@ -2,7 +2,7 @@
 
 A Flask REST API for managing fitness clients, programs, workouts, and progress. The project demonstrates automated code checks and Docker-based testing with GitHub Actions, plus a separate Jenkins BUILD pipeline.
 
-> **Pipeline scope:** GitHub Actions and Jenkins build and test the application. This repository does not currently publish the Docker image or deploy the service.
+> **Pipeline scope:** GitHub Actions performs independent CI checks. Jenkins performs the Assignment 2 quality gate, Docker Hub publishing, Kubernetes deployment, smoke testing, and rollback workflow.
 
 ## Features
 
@@ -142,9 +142,9 @@ The workflow in `.github/workflows/main.yml` runs for every push and pull reques
 
 A successful run means those checks passed. The Docker image remains on the temporary runner; the workflow does not push it to a registry or deploy the application. Requiring a passing check before merging is a separate repository branch-protection setting.
 
-## Jenkins BUILD pipeline
+## Jenkins CI/CD pipeline
 
-The `Jenkinsfile` defines a pipeline that checks out the repository, installs dependencies, runs linting and tests, builds a Docker image, and runs the tests inside that image. Jenkins is separate from GitHub Actions; one pipeline does not start the other.
+The `Jenkinsfile` defines the Assignment 2 delivery pipeline: checkout, linting, tests and coverage, SonarQube Quality Gate, Docker build/test/publish, Kubernetes deployment, smoke checking, and rollback. Jenkins is separate from GitHub Actions; one pipeline does not start the other.
 
 To use this Jenkinsfile:
 
@@ -154,4 +154,20 @@ To use this Jenkinsfile:
 4. Ensure the Jenkins agent is a Linux machine with Python 3.11, pip, Docker, and permission to use the Docker daemon.
 5. Run the job manually, or configure a GitHub webhook/polling trigger in Jenkins separately.
 
-The Jenkinsfile uses `agent any` and Linux shell steps (`sh`); it does not provision a VM. The Jenkins controller, agent, job configuration, and any trigger are provided/configured separately. Jenkins also removes the locally built image after the job. This pipeline is a BUILD and quality gate; it does not publish an image or deploy the service.
+The Jenkinsfile uses `agent any` and Linux shell steps (`sh`); it does not provision a VM. The Jenkins controller, agent, job configuration, credentials, SonarQube server, Docker daemon, Docker Hub account, and Kubernetes kubeconfig are provided/configured separately. Jenkins removes temporary local images after the job.
+
+## Assignment 2 CI/CD extension
+
+The repository also contains Assignment 2 delivery resources:
+
+| File or directory | Purpose |
+| --- | --- |
+| `Jenkinsfile` | SonarQube gate, Docker Hub publishing, Kubernetes deployment, smoke test, and rollback |
+| `sonar-project.properties` | SonarQube project and Python coverage settings |
+| `k8s/` | Namespace, stable, rolling, blue-green, canary, shadow, and A/B manifests |
+| `docs/ASSIGNMENT2.md` | Setup, evidence, strategy, and rollback commands |
+| `Assignment2_Submission_Report.md` | 2-3 page Assignment 2 report source |
+
+The application now supports `APP_VERSION` and `DEPLOY_VARIANT` environment variables. `/version` reports both values, while `/health` includes them with its health status.
+
+The Jenkins pipeline requires Jenkins credentials named `dockerhub-credentials`, `sonarqube-token`, and `kubeconfig`. A Jenkins parameter selects `rolling`, `blue-green`, `canary`, `shadow`, or `ab`, and `DEPLOY_ACTION=rollback` demonstrates rollback. Full setup and evidence instructions are in [docs/ASSIGNMENT2.md](docs/ASSIGNMENT2.md).
