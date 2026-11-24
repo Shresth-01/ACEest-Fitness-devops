@@ -34,4 +34,4 @@ jobs:
       # Stage 3: Automated Testing inside Container
       - name: Automated Testing (Pytest inside Docker Container)
         run: |
-          docker run --rm aceest-fitness-app:${{ github.sha }} pytest -v
+          docker run --rm aceest-fitness-app:${{ github.sha }} pytest -v --cov=app --cov-report=term-missing

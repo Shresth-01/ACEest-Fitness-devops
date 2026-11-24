@@ -34,10 +34,19 @@ def test_home_and_health_endpoints(client):
     data = home_res.get_json()
     assert data["status"] == "running"
     assert data["capacity"] == 150
+    assert data["version"]
+    assert data["variant"]
 
     health_res = client.get("/health")
     assert health_res.status_code == 200
-    assert health_res.get_json() == {"status": "healthy"}
+    health_data = health_res.get_json()
+    assert health_data["status"] == "healthy"
+    assert health_data["version"]
+    assert health_data["variant"]
+
+    version_res = client.get("/version")
+    assert version_res.status_code == 200
+    assert "version" in version_res.get_json()
 
 
 def test_programs_endpoint(client):
